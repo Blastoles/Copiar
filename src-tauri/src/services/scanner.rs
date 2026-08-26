@@ -12,6 +12,18 @@ pub struct RawFileMetadata {
     pub mtime_millis: i64,
 }
 
+#[cfg(windows)]
+fn is_offline_file(metadata: &fs::Metadata) -> bool {
+    use std::os::windows::fs::MetadataExt;
+    // FILE_ATTRIBUTE_OFFLINE = 0x1000
+    (metadata.file_attributes() & 0x1000) != 0
+}
+
+#[cfg(not(windows))]
+fn is_offline_file(_metadata: &fs::Metadata) -> bool {
+    false
+}
+
 pub fn scan_directory_tree<F>(base_dir: &Path, on_progress: F) -> Result<HashMap<String, RawFileMetadata>, String>
 where
     F: Fn(usize, &str) + Send + Sync + Clone + 'static,
@@ -34,6 +46,9 @@ where
         let path = entry.path();
         if path.is_file() {
             if let Ok(metadata) = fs::metadata(path) {
+                if is_offline_file(&metadata) {
+                    continue;
+                }
                 if let Ok(rel) = path.strip_prefix(base_dir) {
                     let rel_str = rel.to_string_lossy().replace('\\', "/");
                     let mtime_millis = metadata
