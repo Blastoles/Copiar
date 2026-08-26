@@ -1,0 +1,36 @@
+# Rust / Cargo
+src-tauri/target/
+src-tauri/gen/
+**/*.rs.bk
+
+# Node / JS
+node_modules/
+dist/
+build/
+.svelte-kit/
+.next/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+
+# IDEs / Editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini

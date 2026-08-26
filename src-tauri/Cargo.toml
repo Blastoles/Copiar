@@ -1,0 +1,30 @@
+[package]
+name = "copiar"
+version = "1.0.6"
+description = "Gerenciador e Comparador Inteligente de Cópia de Arquivos em Rust"
+authors = ["Igor C. Pereira - Blastoles"]
+edition = "2026"
+
+[lib]
+name = "copiar_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.5", features = [] }
+
+[dependencies]
+tauri = { version = "2.3.1", features = [] }
+tauri-plugin-dialog = "2.2.0"
+tauri-plugin-fs = "2.2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.43", features = ["full"] }
+rayon = "1.10"
+walkdir = "2.5"
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+filetime = "0.2"
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tempfile = "3.18"
+

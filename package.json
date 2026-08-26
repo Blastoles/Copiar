@@ -1,0 +1,14 @@
+{
+    "name":  "copiar-file-sync",
+    "private":  true,
+    "version": "1.0.6",
+    "type":  "module",
+    "scripts":  {
+                    "dev":  "tauri dev",
+                    "build":  "tauri build",
+                    "tauri":  "tauri"
+                },
+    "devDependencies":  {
+                            "@tauri-apps/cli":  "^2.3.1"
+                        }
+}

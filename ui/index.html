@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copiar - Gerenciador Inteligente de Arquivos</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon" style="background: none; padding: 0;">
+          <img src="app_logo.png" alt="Copiar Logo" style="width: 100%; height: 100%; border-radius: var(--radius-md); object-fit: cover;" />
+        </div>
+        <div class="brand-info">
+          <h1>Copiar <span>v1.0.6</span></h1>
+          <p>Comparador e Gerenciador de Cópia Inteligente em Rust</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-scan" class="btn btn-primary" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          Comparar Pastas
+        </button>
+      </div>
+    </header>
+
+    <!-- Folder Pickers Section -->
+    <section class="picker-section">
+      <div class="folder-card source-card">
+        <div class="folder-header">
+          <div class="folder-badge source-badge">Origem (De onde copiar)</div>
+          <button id="btn-browse-source" class="btn btn-secondary btn-sm">Selecionar Pasta</button>
+        </div>
+        <div class="folder-input-wrapper">
+          <input type="text" id="input-source" placeholder="Caminho da pasta de origem..." readonly />
+        </div>
+      </div>
+
+      <div class="sync-direction-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </div>
+
+      <div class="folder-card target-card">
+        <div class="folder-header">
+          <div class="folder-badge target-badge">Destino (Para onde enviar)</div>
+          <button id="btn-browse-target" class="btn btn-secondary btn-sm">Selecionar Pasta</button>
+        </div>
+        <div class="folder-input-wrapper">
+          <input type="text" id="input-target" placeholder="Caminho da pasta de destino..." readonly />
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics Bar (Summary Cards) -->
+    <section id="metrics-panel" class="metrics-panel hidden">
+      <div class="metric-card card-total">
+        <span class="metric-label">Total Arquivos</span>
+        <strong id="metric-total" class="metric-value">0</strong>
+        <span id="metric-size-total" class="metric-sub">0 MB</span>
+      </div>
+      <div class="metric-card card-newer">
+        <span class="metric-label">Mais Recentes (Origem)</span>
+        <strong id="metric-newer" class="metric-value">0</strong>
+        <span class="metric-sub">Prontos p/ Atualizar</span>
+      </div>
+      <div class="metric-card card-new">
+        <span class="metric-label">Apenas na Origem</span>
+        <strong id="metric-only-src" class="metric-value">0</strong>
+        <span class="metric-sub">Novos Arquivos</span>
+      </div>
+      <div class="metric-card card-diff">
+        <span class="metric-label">Diferentes / Conflito</span>
+        <strong id="metric-diff" class="metric-value">0</strong>
+        <span class="metric-sub">Tamanhos divergentes</span>
+      </div>
+      <div class="metric-card card-heavy">
+        <span class="metric-label">Mais Pesados (Origem)</span>
+        <strong id="metric-heavy" class="metric-value">0</strong>
+        <span class="metric-sub">Maior tamanho</span>
+      </div>
+      <div class="metric-card card-equal">
+        <span class="metric-label">Idênticos</span>
+        <strong id="metric-equal" class="metric-value">0</strong>
+        <span class="metric-sub">Sem alterações</span>
+      </div>
+    </section>
+
+    <!-- Main Workspace / Table Section -->
+    <main class="main-content">
+      <!-- Toolbar & Category Tabs -->
+      <div class="toolbar">
+        <div class="category-tabs">
+          <button class="tab-btn active" data-tab="all">Todos (<span id="count-tab-all">0</span>)</button>
+          <button class="tab-btn" data-tab="newer">Mais Recentes (<span id="count-tab-newer">0</span>)</button>
+          <button class="tab-btn" data-tab="only-source">Novos (<span id="count-tab-only-source">0</span>)</button>
+          <button class="tab-btn" data-tab="different">Diferentes (<span id="count-tab-different">0</span>)</button>
+          <button class="tab-btn" data-tab="heavy">Mais Pesados (<span id="count-tab-heavy">0</span>)</button>
+          <button class="tab-btn" data-tab="equal">Iguais (<span id="count-tab-equal">0</span>)</button>
+        </div>
+
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Filtrar por nome ou extensão..." />
+        </div>
+      </div>
+
+      <!-- Batch Selection Helpers -->
+      <div class="selection-actions-bar">
+        <span class="selection-info">
+          Selecionados: <strong id="selected-count">0</strong> de <span id="filtered-count">0</span> arquivos
+          (<span id="selected-size">0 B</span>)
+        </span>
+        <div class="quick-select-buttons">
+          <button id="btn-select-newer" class="btn-chip">Marcar Recentes + Novos</button>
+          <button id="btn-select-all-filtered" class="btn-chip">Marcar Todos Visíveis</button>
+          <button id="btn-invert-selection" class="btn-chip">Inverter Seleção</button>
+          <button id="btn-clear-selection" class="btn-chip">Desmarcar Todos</button>
+        </div>
+      </div>
+
+      <!-- File Table View (Virtual Scroll Container) -->
+      <div class="table-container">
+        <div class="table-header-row">
+          <div class="th col-check">
+            <input type="checkbox" id="master-checkbox" title="Marcar/Desmarcar todos os visíveis" />
+          </div>
+          <div class="th col-status">Status</div>
+          <div class="th col-path">Caminho do Arquivo</div>
+          <div class="th col-size-src">Tamanho Origem</div>
+          <div class="th col-size-tgt">Tamanho Destino</div>
+          <div class="th col-date-src">Data Origem</div>
+          <div class="th col-date-tgt">Data Destino</div>
+        </div>
+
+        <div id="virtual-scroll-viewport" class="virtual-scroll-viewport">
+          <div id="virtual-scroll-spacer" class="virtual-scroll-spacer"></div>
+          <div id="virtual-scroll-content" class="virtual-scroll-content">
+            <!-- Linhas renderizadas dinamicamente via JS virtual scrolling -->
+          </div>
+          <div id="empty-state" class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>Nenhuma pasta comparada ainda</h3>
+            <p>Selecione a pasta de <strong>Origem</strong> e a pasta de <strong>Destino</strong> acima e clique em <strong>Comparar Pastas</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Action Bar -->
+    <footer class="app-footer">
+      <div class="copy-options">
+        <label class="checkbox-label">
+          <input type="checkbox" id="opt-preserve-mtime" checked />
+          Preservar datas originais (mtime)
+        </label>
+        <div class="operation-mode-toggle">
+          <label><input type="radio" name="op-type" value="copy" checked /> Copiar</label>
+          <label><input type="radio" name="op-type" value="move" /> Mover</label>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <button id="btn-start-copy" class="btn btn-success btn-lg" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+            <rect x="3" y="15" width="18" height="6" rx="2"></rect>
+          </svg>
+          <span id="btn-start-copy-text">Iniciar Cópia (0 arquivos)</span>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Copy Progress Overlay Modal -->
+    <div id="copy-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modal-title">Executando Cópia...</h3>
+          <span id="modal-badge-speed" class="badge-speed">0.0 MB/s</span>
+        </div>
+
+        <div class="modal-body">
+          <div class="current-file-box">
+            <span class="file-label">Arquivo atual:</span>
+            <p id="modal-current-file" class="file-name">Iniciando...</p>
+          </div>
+
+          <div class="progress-section">
+            <div class="progress-info">
+              <span id="modal-files-count">0 / 0 arquivos</span>
+              <strong id="modal-percent">0%</strong>
+            </div>
+            <div class="progress-bar-track">
+              <div id="modal-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-sub-info">
+              <span id="modal-bytes-count">0 MB / 0 MB</span>
+              <span id="modal-status-text">Processando...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-cancel-copy" class="btn btn-danger">Cancelar</button>
+          <button id="btn-close-modal" class="btn btn-secondary hidden">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/tauri-bridge.js"></script>
+  <script src="js/selection-manager.js"></script>
+  <script src="js/virtual-table.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+
+
