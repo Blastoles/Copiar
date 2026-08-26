@@ -16,7 +16,7 @@
           <img src="app_logo.png" alt="Copiar Logo" style="width: 100%; height: 100%; border-radius: var(--radius-md); object-fit: cover;" />
         </div>
         <div class="brand-info">
-          <h1>Copiar <span>v1.0.6</span></h1>
+          <h1>Copiar <span>v1.0.9</span></h1>
           <p>Comparador e Gerenciador de Cópia Inteligente em Rust</p>
         </div>
       </div>
@@ -211,6 +211,24 @@
               <span id="modal-status-text">Processando...</span>
             </div>
           </div>
+          
+          <!-- Area para exibir logs de erro caso ocorram -->
+          <div id="modal-error-log-box" class="hidden" style="
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            color: #ef4444;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+          "></div>
         </div>
 
         <div class="modal-footer">

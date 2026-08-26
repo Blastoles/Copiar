@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalStatusText: document.getElementById('modal-status-text'),
     btnCancelCopy: document.getElementById('btn-cancel-copy'),
     btnCloseModal: document.getElementById('btn-close-modal'),
+    errorLogBox: document.getElementById('modal-error-log-box'),
   };
 
   // Instanciar Virtual Table
@@ -279,6 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.modalPercent.textContent = '0%';
     dom.btnCancelCopy.classList.remove('hidden');
     dom.btnCloseModal.classList.add('hidden');
+    dom.errorLogBox.classList.add('hidden');
+    dom.errorLogBox.innerHTML = '';
 
     const request = {
       sourceBase: state.sourcePath,
@@ -291,9 +294,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const result = await window.TauriBridge.startCopy(request);
       if (result.errorCount > 0) {
-        dom.modalStatusText.textContent = `Erro: ${result.errorCount} falhas. Detalhe: ${result.errors.join(', ')}`;
+        dom.modalStatusText.textContent = `Erro: ${result.errorCount} falhas.`;
         dom.modalStatusText.style.color = '#ef4444';
         dom.modalTitle.textContent = 'Operação Concluída com Erros';
+        
+        // Inserir log de erros formatado
+        dom.errorLogBox.innerHTML = result.errors.map(err => `<div>❌ ${err}</div>`).join('');
+        dom.errorLogBox.classList.remove('hidden');
       } else {
         dom.modalStatusText.textContent = `Sucesso: ${result.successCount} arquivos processados.`;
         dom.modalStatusText.style.color = '';
