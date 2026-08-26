@@ -290,9 +290,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const result = await window.TauriBridge.startCopy(request);
-      dom.modalStatusText.textContent = `Sucesso: ${result.successCount} arquivos processados.`;
+      if (result.errorCount > 0) {
+        dom.modalStatusText.textContent = `Erro: ${result.errorCount} falhas. Detalhe: ${result.errors.join(', ')}`;
+        dom.modalStatusText.style.color = '#ef4444';
+        dom.modalTitle.textContent = 'Operação Concluída com Erros';
+      } else {
+        dom.modalStatusText.textContent = `Sucesso: ${result.successCount} arquivos processados.`;
+        dom.modalStatusText.style.color = '';
+      }
     } catch (err) {
       dom.modalStatusText.textContent = `Interrompido: ${err}`;
+      dom.modalStatusText.style.color = '#ef4444';
     } finally {
       state.isCopying = false;
       dom.btnCancelCopy.classList.add('hidden');
@@ -310,7 +318,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.modalBadgeSpeed.textContent = `${(progress.speedBytesPerSec / (1024 * 1024)).toFixed(1)} MB/s`;
 
     if (progress.isFinished) {
-      dom.modalTitle.textContent = 'Operação Concluída!';
+      if (progress.hasError) {
+        dom.modalTitle.textContent = 'Operação Concluída com Erros';
+      } else {
+        dom.modalTitle.textContent = 'Operação Concluída!';
+      }
       dom.btnCancelCopy.classList.add('hidden');
       dom.btnCloseModal.classList.remove('hidden');
     }
