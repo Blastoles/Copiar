@@ -16,8 +16,8 @@ where
     F: FnMut(CopyProgressEvent) + Send + 'static,
 {
     let start_time = Instant::now();
-    let src_base = PathBuf::from(&request.source_base);
-    let tgt_base = PathBuf::from(&request.target_base);
+    let src_base = crate::services::adjust_long_path(&PathBuf::from(&request.source_base));
+    let tgt_base = crate::services::adjust_long_path(&PathBuf::from(&request.target_base));
 
     if !src_base.exists() {
         return Err(format!("Pasta de origem não existe: {}", src_base.display()));

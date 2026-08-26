@@ -28,17 +28,18 @@ pub fn scan_directory_tree<F>(base_dir: &Path, on_progress: F) -> Result<HashMap
 where
     F: Fn(usize, &str) + Send + Sync + Clone + 'static,
 {
-    if !base_dir.exists() {
+    let adjusted_base = crate::services::adjust_long_path(base_dir);
+    if !adjusted_base.exists() {
         return Err(format!("Diretório '{}' não existe", base_dir.display()));
     }
-    if !base_dir.is_dir() {
+    if !adjusted_base.is_dir() {
         return Err(format!("Caminho '{}' não é uma pasta", base_dir.display()));
     }
 
     let mut map = HashMap::new();
     let mut count = 0;
 
-    for entry in WalkDir::new(base_dir)
+    for entry in WalkDir::new(&adjusted_base)
         .follow_links(false)
         .into_iter()
         .filter_map(|e| e.ok())
@@ -49,7 +50,7 @@ where
                 if is_offline_file(&metadata) {
                     continue;
                 }
-                if let Ok(rel) = path.strip_prefix(base_dir) {
+                if let Ok(rel) = path.strip_prefix(&adjusted_base) {
                     let rel_str = rel.to_string_lossy().replace('\\', "/");
                     let mtime_millis = metadata
                         .modified()
