@@ -15,8 +15,11 @@ pub struct RawFileMetadata {
 #[cfg(windows)]
 fn is_offline_file(metadata: &fs::Metadata) -> bool {
     use std::os::windows::fs::MetadataExt;
+    let attrs = metadata.file_attributes();
     // FILE_ATTRIBUTE_OFFLINE = 0x1000
-    (metadata.file_attributes() & 0x1000) != 0
+    // FILE_ATTRIBUTE_RECALL_ON_OPEN = 0x40000
+    // FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS = 0x400000
+    (attrs & 0x1000) != 0 || (attrs & 0x40000) != 0 || (attrs & 0x400000) != 0
 }
 
 #[cfg(not(windows))]
