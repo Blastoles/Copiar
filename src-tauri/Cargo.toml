@@ -1,6 +1,6 @@
 [package]
 name = "copiar"
-version = "1.0.7"
+version = "1.0.11"
 description = "Gerenciador e Comparador Inteligente de Cópia de Arquivos em Rust"
 authors = ["Igor C. Pereira - Blastoles"]
 edition = "2021"

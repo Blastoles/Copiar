@@ -1,7 +1,7 @@
 {
     "name":  "copiar-file-sync",
     "private":  true,
-    "version": "1.0.6",
+    "version": "1.0.11",
     "type":  "module",
     "scripts":  {
                     "dev":  "tauri dev",
