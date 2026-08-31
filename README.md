@@ -2,7 +2,7 @@
 
 > Gerenciador e Comparador Inteligente de Cópia e Sincronização de Arquivos em **Rust** + **Tauri v2**.
 >
-> 📥 **Downloads disponíveis diretamente na aba de [Releases](https://github.com/Blastoles/Copiar/releases) do GitHub** (instaladores `.msi` e `.exe` para Windows).
+> 📥 **Downloads disponíveis diretamente na aba de [Releases](https://github.com/Blastoles/Copiar/releases) do GitHub** (executável `.exe` para Windows).
 
 ---
 
